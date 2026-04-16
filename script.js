@@ -267,9 +267,8 @@ function captureElementForExport(element) {
     wrapper.style.width = `${element.offsetWidth}px`;
     wrapper.style.overflow = "visible";
     wrapper.style.pointerEvents = "none";
-    wrapper.style.opacity = "1";
-    // wrapper.style.opacity = "0";
-    // wrapper.style.zIndex = "-9999";
+    wrapper.style.opacity = "0";
+    wrapper.style.zIndex = "-9999";
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
 
