@@ -237,7 +237,18 @@ function renderReceipt() {
   receiptTotal.textContent = transactionState.amount;
   receiptTypeIcon.textContent =
     transactionState.type === "Credit" ? "Cr" : "Dr";
-  receiptModeIcon.innerHTML = `<span class="mode-badge">${modeBadge}</span><span>${transactionState.mode}</span>`;
+
+  receiptModeIcon.innerHTML = "";
+
+  const badge = document.createElement("span");
+  badge.className = "mode-badge";
+  badge.textContent = transactionState.mode === "Online" ? "🌐" : "💸";
+
+  const text = document.createElement("span");
+  text.textContent = transactionState.mode;
+
+  receiptModeIcon.appendChild(badge);
+  receiptModeIcon.appendChild(text);
 
   receiptTitle.textContent = isPaid
     ? "TRANSACTION SUCCESSFUL"
@@ -259,7 +270,18 @@ function syncTransactionState() {
 
 function captureElementForExport(element) {
   return new Promise((resolve, reject) => {
-    const clone = element.cloneNode(true);
+    // const clone = element.cloneNode(true);
+    // 🔥 FIX: Replace all select with text
+    const selects = clone.querySelectorAll("select");
+
+    selects.forEach((el) => {
+      const div = document.createElement("div");
+      div.textContent = el.value;
+      div.style.padding = "4px";
+      div.style.borderBottom = "1px solid #ccc";
+      el.parentNode.replaceChild(div, el);
+    });
+
     const wrapper = document.createElement("div");
     wrapper.style.position = "fixed";
     wrapper.style.top = "0";
@@ -267,7 +289,9 @@ function captureElementForExport(element) {
     wrapper.style.width = `${element.offsetWidth}px`;
     wrapper.style.overflow = "visible";
     wrapper.style.pointerEvents = "none";
-    wrapper.style.opacity = "0";
+    // wrapper.style.opacity = "0";
+    wrapper.style.opacity = "1";
+    wrapper.style.visibility = "hidden";
     wrapper.style.zIndex = "-9999";
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
@@ -285,6 +309,9 @@ function captureElementForExport(element) {
           windowHeight: document.documentElement.scrollHeight,
           scrollX: -window.scrollX,
           scrollY: -window.scrollY,
+          ignoreElements: (el) => {
+            return el.tagName === "SCRIPT";
+          },
         })
           .then((canvas) => {
             document.body.removeChild(wrapper);
