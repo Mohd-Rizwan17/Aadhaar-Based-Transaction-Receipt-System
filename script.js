@@ -268,63 +268,76 @@ function syncTransactionState() {
   renderReceipt();
 }
 
+// function captureElementForExport(element) {
+//   return new Promise((resolve, reject) => {
+//     // ✅ FIRST create clone (IMPORTANT)
+//     const clone = element.cloneNode(true);
+
+//     // 🔥 THEN modify clone
+//     const selects = clone.querySelectorAll("select");
+
+//     selects.forEach((el) => {
+//       const div = document.createElement("div");
+//       div.textContent = el.value;
+//       div.style.padding = "4px";
+//       div.style.borderBottom = "1px solid #ccc";
+//       el.parentNode.replaceChild(div, el);
+//     });
+
+//     const wrapper = document.createElement("div");
+//     wrapper.style.position = "fixed";
+//     wrapper.style.top = "0";
+//     wrapper.style.left = "0";
+//     wrapper.style.width = `${element.offsetWidth}px`;
+//     wrapper.style.overflow = "visible";
+//     wrapper.style.pointerEvents = "none";
+//     // wrapper.style.opacity = "0";
+//     wrapper.style.opacity = "0";
+//     wrapper.style.visibility = "visible";
+//     wrapper.style.zIndex = "-9999";
+//     wrapper.appendChild(clone);
+//     document.body.appendChild(wrapper);
+
+//     requestAnimationFrame(() => {
+//       setTimeout(() => {
+//         html2canvas(clone, {
+//           scale: 2,
+//           useCORS: true,
+//           allowTaint: true,
+//           backgroundColor: window.getComputedStyle(element).backgroundColor,
+//           width: clone.offsetWidth,
+//           height: clone.scrollHeight,
+//           windowWidth: document.documentElement.scrollWidth,
+//           windowHeight: document.documentElement.scrollHeight,
+//           scrollX: -window.scrollX,
+//           scrollY: -window.scrollY,
+//           ignoreElements: (el) => {
+//             return el.tagName === "SCRIPT";
+//           },
+//         })
+//           .then((canvas) => {
+//             document.body.removeChild(wrapper);
+//             resolve(canvas);
+//           })
+//           .catch((error) => {
+//             document.body.removeChild(wrapper);
+//             reject(error);
+//           });
+//       }, 50);
+//     });
+//   });
+// }
 function captureElementForExport(element) {
-  return new Promise((resolve, reject) => {
-    // ✅ FIRST create clone (IMPORTANT)
-    const clone = element.cloneNode(true);
+  return html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: "#ffffff",
 
-    // 🔥 THEN modify clone
-    const selects = clone.querySelectorAll("select");
+    scrollX: 0,
+    scrollY: 0,
 
-    selects.forEach((el) => {
-      const div = document.createElement("div");
-      div.textContent = el.value;
-      div.style.padding = "4px";
-      div.style.borderBottom = "1px solid #ccc";
-      el.parentNode.replaceChild(div, el);
-    });
-
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "fixed";
-    wrapper.style.top = "0";
-    wrapper.style.left = "0";
-    wrapper.style.width = `${element.offsetWidth}px`;
-    wrapper.style.overflow = "visible";
-    wrapper.style.pointerEvents = "none";
-    // wrapper.style.opacity = "0";
-    wrapper.style.opacity = "0";
-    wrapper.style.visibility = "visible";
-    wrapper.style.zIndex = "-9999";
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
-
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        html2canvas(clone, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: window.getComputedStyle(element).backgroundColor,
-          width: clone.offsetWidth,
-          height: clone.scrollHeight,
-          windowWidth: document.documentElement.scrollWidth,
-          windowHeight: document.documentElement.scrollHeight,
-          scrollX: -window.scrollX,
-          scrollY: -window.scrollY,
-          ignoreElements: (el) => {
-            return el.tagName === "SCRIPT";
-          },
-        })
-          .then((canvas) => {
-            document.body.removeChild(wrapper);
-            resolve(canvas);
-          })
-          .catch((error) => {
-            document.body.removeChild(wrapper);
-            reject(error);
-          });
-      }, 50);
-    });
+    ignoreElements: (el) => el.tagName === "SCRIPT",
   });
 }
 
@@ -343,6 +356,20 @@ function captureElementForExport(element) {
 function downloadForm() {
   const formScreen = document.getElementById("screen-1");
 
+  // 🔥 replace select with text TEMPORARILY
+  const selects = formScreen.querySelectorAll("select");
+  const backups = [];
+
+  selects.forEach((el) => {
+    const div = document.createElement("div");
+    div.textContent = el.value;
+    div.className = "fake-select";
+
+    backups.push({ parent: el.parentNode, original: el, fake: div });
+
+    el.parentNode.replaceChild(div, el);
+  });
+
   captureElementForExport(formScreen)
     .then((canvas) => {
       const image = canvas.toDataURL("image/png");
@@ -351,15 +378,14 @@ function downloadForm() {
       link.href = image;
       link.download = "Application_Form.png";
 
-      // 👇 THIS LINE FIXES MANY CASES
-      link.style.display = "none";
-
       document.body.appendChild(link);
-
-      // 👇 Force click properly
-      link.dispatchEvent(new MouseEvent("click"));
-
+      link.click();
       document.body.removeChild(link);
+
+      // 🔥 restore original selects
+      backups.forEach(({ parent, original, fake }) => {
+        parent.replaceChild(original, fake);
+      });
     })
     .catch((err) => console.error(err));
 }
