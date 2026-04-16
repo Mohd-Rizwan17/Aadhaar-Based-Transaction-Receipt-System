@@ -267,8 +267,9 @@ function captureElementForExport(element) {
     wrapper.style.width = `${element.offsetWidth}px`;
     wrapper.style.overflow = "visible";
     wrapper.style.pointerEvents = "none";
-    wrapper.style.opacity = "0";
-    wrapper.style.zIndex = "-9999";
+    wrapper.style.opacity = "1";
+    // wrapper.style.opacity = "0";
+    // wrapper.style.zIndex = "-9999";
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
 
@@ -299,30 +300,58 @@ function captureElementForExport(element) {
   });
 }
 
+// function downloadForm() {
+//   const formScreen = document.getElementById("screen-1");
+//   captureElementForExport(formScreen).then((canvas) => {
+//     const image = canvas.toDataURL("image/png");
+//     const link = document.createElement("a");
+//     link.href = image;
+//     link.download = "Application_Form.png";
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//   });
+// }
 function downloadForm() {
   const formScreen = document.getElementById("screen-1");
-  captureElementForExport(formScreen).then((canvas) => {
-    const image = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = image;
-    link.download = "Application_Form.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
+
+  captureElementForExport(formScreen)
+    .then((canvas) => {
+      const image = canvas.toDataURL("image/png");
+
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "Application_Form.png";
+
+      // 👇 THIS LINE FIXES MANY CASES
+      link.style.display = "none";
+
+      document.body.appendChild(link);
+
+      // 👇 Force click properly
+      link.dispatchEvent(new MouseEvent("click"));
+
+      document.body.removeChild(link);
+    })
+    .catch((err) => console.error(err));
 }
 
 function downloadReceipt() {
   const receiptCard = document.getElementById("receipt-card");
-  captureElementForExport(receiptCard).then((canvas) => {
-    const image = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = image;
-    link.download = "Transaction_Receipt.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
+  captureElementForExport(receiptCard)
+    .then((canvas) => {
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "Transaction_Receipt.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log("Canvas generated ✅");
+    })
+    .catch((err) => {
+      console.error("Canvas failed ❌", err);
+    });
 }
 
 const downloadBtn = document.getElementById("download-btn");
