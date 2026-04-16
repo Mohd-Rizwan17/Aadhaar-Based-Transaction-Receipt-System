@@ -270,8 +270,10 @@ function syncTransactionState() {
 
 function captureElementForExport(element) {
   return new Promise((resolve, reject) => {
-    // const clone = element.cloneNode(true);
-    // 🔥 FIX: Replace all select with text
+    // ✅ FIRST create clone (IMPORTANT)
+    const clone = element.cloneNode(true);
+
+    // 🔥 THEN modify clone
     const selects = clone.querySelectorAll("select");
 
     selects.forEach((el) => {
