@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aadhaar-Based Transaction & Receipt System</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="app-card screen active" id="screen-1">
+        <header class="card-header">
+          <div class="header-line"></div>
+          <div id="clock" class="clock-text">Loading...</div>
+          <div class="header-line"></div>
+        </header>
+
+        <div class="card-title">Aadhaar-Based Transaction & Receipt System</div>
+
+        <section class="upload-section">
+          <div class="upload-box" id="front-aadhaar">
+            <div class="upload-label">Front Aadhaar</div>
+            <div class="upload-content">
+              <span class="upload-placeholder">Tap to upload</span>
+            </div>
+            <input type="file" id="front-input" accept="image/*" hidden />
+          </div>
+          <div class="upload-box" id="back-aadhaar">
+            <div class="upload-label">Back Aadhaar</div>
+            <div class="upload-content">
+              <span class="upload-placeholder">Tap to upload</span>
+            </div>
+            <input type="file" id="back-input" accept="image/*" hidden />
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" class="underline-input" />
+          </div>
+          <div class="form-group">
+            <label for="dob">DOB</label>
+            <input type="text" id="dob" class="underline-input" />
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" class="underline-input" />
+          </div>
+          <div class="form-group">
+            <label for="aadhaar-no">Aadhaar No</label>
+            <input type="text" id="aadhaar-no" class="underline-input" />
+          </div>
+        </section>
+
+        <section class="transaction-section">
+          <div class="transaction-card">
+            <div class="transaction-title">Transaction</div>
+            <div class="transaction-row">
+              <div class="transaction-field">
+                <label for="card-type">Transaction Type</label>
+                <select id="card-type" class="transaction-input">
+                  <option value="credit">Credit</option>
+                  <option value="debit">Debit</option>
+                </select>
+              </div>
+              <div class="transaction-field">
+                <label for="amount">Amount</label>
+                <input
+                  type="text"
+                  id="amount"
+                  class="transaction-input"
+                  value="&#8377; 5000.00"
+                />
+              </div>
+            </div>
+            <div class="transaction-row">
+              <div class="transaction-field">
+                <label for="payment-mode">Payment Mode</label>
+                <select id="payment-mode" class="transaction-input">
+                  <option value="Cash">💸Cash</option>
+                  <option value="Online" selected>🌐Online</option>
+                </select>
+              </div>
+              <div class="transaction-field">
+                <label for="payment-status">Payment Status</label>
+                <select id="payment-status" class="transaction-input">
+                  <option value="Paid" selected>Paid</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="buttons-section">
+          <button id="download-btn" class="action-btn">DOWNLOAD FORM</button>
+          <button id="generate-btn" class="action-btn secondary">
+            GENERATE RECEIPT
+          </button>
+        </section>
+      </main>
+
+      <main class="app-card screen" id="screen-2">
+        <div class="receipt-card" id="receipt-card">
+          <div class="receipt-body">
+            <div id="receipt-title" class="receipt-title">
+              TRANSACTION SUCCESSFUL
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Sent To</div>
+              <div id="receipt-name" class="receipt-value">Rajesh Kumar</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Received By</div>
+              <div class="receipt-value">ABC Services Pvt Ltd</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Type</div>
+              <div id="receipt-type" class="receipt-value">Debit</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Mode</div>
+              <div id="receipt-mode" class="receipt-value">Online</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Status</div>
+              <div id="receipt-status" class="receipt-value">Paid</div>
+            </div>
+            <div class="receipt-row amount-row">
+              <div class="receipt-label">Amount</div>
+              <div id="receipt-amount" class="receipt-value">
+                &#8377; 5000.00
+              </div>
+            </div>
+            <div class="receipt-icons">
+              <div class="receipt-icon">
+                <span class="icon-circle">Dr</span>
+              </div>
+              <div id="receipt-mode-icon" class="receipt-icon receipt-online">
+                <span class="mode-badge">🌐</span>
+                <span>Online</span>
+              </div>
+            </div>
+          </div>
+          <div class="receipt-footer">
+            <div class="receipt-total">
+              <div>Total</div>
+              <div id="receipt-total">&#8377; 5000.00</div>
+            </div>
+            <div id="receipt-check" class="receipt-check">&#10003;</div>
+            <div class="receipt-qr"></div>
+          </div>
+        </div>
+
+        <section class="buttons-section bottom">
+          <button id="back-btn" class="action-btn secondary">
+            BACK TO APP
+          </button>
+          <button id="download-receipt-btn" class="action-btn">DOWNLOAD</button>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
